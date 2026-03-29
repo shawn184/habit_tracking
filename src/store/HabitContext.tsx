@@ -1,4 +1,4 @@
-import React, { createContext, useContext, ReactNode } from 'react';
+import React, { createContext, useContext, type ReactNode } from 'react';
 import { useHabitsStore } from './useHabitStore';
 import type { Habit, HabitLog } from '../types';
 
