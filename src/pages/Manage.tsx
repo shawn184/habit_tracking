@@ -1,16 +1,45 @@
 import React, { useState } from 'react';
-import type { HabitFrequency } from '../types';
+import type { HabitFrequency, Habit } from '../types';
 import { useHabits } from '../store/HabitContext';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Edit2 } from 'lucide-react';
 
 export default function ManagePage() {
-  const { habits, addHabit, removeHabit } = useHabits();
+  const { habits, addHabit, removeHabit, updateHabit } = useHabits();
   const [title, setTitle] = useState('');
   const [target, setTarget] = useState(1);
   const [frequency, setFrequency] = useState<HabitFrequency>('daily');
   const [requiresDescription, setRequiresDescription] = useState(false);
 
+  const [editingHabitId, setEditingHabitId] = useState<string | null>(null);
+  const [editTitle, setEditTitle] = useState('');
+  const [editTarget, setEditTarget] = useState(1);
+  const [editFrequency, setEditFrequency] = useState<HabitFrequency>('daily');
+  const [editRequiresDescription, setEditRequiresDescription] = useState(false);
+
   const activeHabits = habits.filter(h => h.isActive);
+
+  const startEditing = (habit: Habit) => {
+    setEditingHabitId(habit.id);
+    setEditTitle(habit.title);
+    setEditTarget(habit.target);
+    setEditFrequency(habit.frequency);
+    setEditRequiresDescription(habit.requiresDescription);
+  };
+
+  const cancelEditing = () => {
+    setEditingHabitId(null);
+  };
+
+  const saveEdit = (id: string) => {
+    if (!editTitle.trim()) return;
+    updateHabit(id, {
+      title: editTitle.trim(),
+      target: editTarget,
+      frequency: editFrequency,
+      requiresDescription: editRequiresDescription
+    });
+    setEditingHabitId(null);
+  };
 
   const handleAdd = (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,20 +124,94 @@ export default function ManagePage() {
       ) : (
         <div className="flex flex-col gap-4">
           {activeHabits.map(habit => (
-            <div key={habit.id} className="card glass justify-between">
-              <div className="card-content">
-                <span className="card-title">{habit.title}</span>
-                <span className="card-meta">
-                  Goal: {habit.target}x / {habit.frequency}
-                </span>
-              </div>
-              <button 
-                className="btn-icon" 
-                onClick={() => removeHabit(habit.id)}
-                title="Remove Habit"
-              >
-                <Trash2 />
-              </button>
+            <div key={habit.id} className="card glass flex-wrap gap-4" style={{ justifyContent: 'space-between' }}>
+              {editingHabitId === habit.id ? (
+                <div className="flex flex-col w-full gap-4">
+                  <div>
+                    <label className="text-secondary text-sm mb-1 block">Habit Name</label>
+                    <input 
+                      type="text" 
+                      value={editTitle}
+                      onChange={e => setEditTitle(e.target.value)}
+                      className="w-full"
+                    />
+                  </div>
+                  <div className="flex gap-4 items-end">
+                    <div className="flex-1">
+                      <label className="text-secondary text-sm mb-1 block">Frequency</label>
+                      <select
+                        className="w-full p-2 rounded glass"
+                        style={{ background: 'rgba(0,0,0,0.3)', color: 'white', border: '1px solid var(--surface-border)' }}
+                        value={editFrequency}
+                        onChange={e => {
+                          setEditFrequency(e.target.value as HabitFrequency);
+                          setEditTarget(1);
+                        }}
+                      >
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                        <option value="quarterly">Quarterly</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-secondary text-sm mb-1 block">Goal</label>
+                      <input 
+                        type="number" 
+                        min="1" 
+                        max={editFrequency === 'daily' ? 10 : editFrequency === 'weekly' ? 7 : editFrequency === 'monthly' ? 31 : 90} 
+                        value={editTarget} 
+                        onChange={e => setEditTarget(Number(e.target.value))} 
+                        className="w-24"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 mt-1">
+                    <input 
+                      type="checkbox" 
+                      className="custom-checkbox" 
+                      checked={editRequiresDescription} 
+                      onChange={e => setEditRequiresDescription(e.target.checked)} 
+                    />
+                    <span className="text-secondary text-sm">Require a description when marking done</span>
+                  </div>
+                  <div className="flex justify-end gap-2 mt-2">
+                    <button className="btn btn-primary px-4 py-2" onClick={() => saveEdit(habit.id)}>
+                      Save
+                    </button>
+                    <button className="btn px-4 py-2" style={{ background: 'transparent', border: '1px solid var(--surface-border)' }} onClick={cancelEditing}>
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div className="card-content flex-1 min-w-0">
+                    <span className="card-title truncate" style={{ display: 'block' }}>{habit.title}</span>
+                    <span className="card-meta">
+                      Goal: {habit.target}x / {habit.frequency}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button 
+                      className="btn-icon" 
+                      onClick={() => startEditing(habit)}
+                      title="Edit Habit"
+                      style={{ color: 'var(--text-secondary)' }}
+                    >
+                      <Edit2 size={20} />
+                    </button>
+                    <button 
+                      className="btn-icon" 
+                      onClick={() => removeHabit(habit.id)}
+                      title="Remove Habit"
+                      style={{ color: 'var(--error, #ef4444)' }}
+                    >
+                      <Trash2 size={20} />
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           ))}
         </div>
