@@ -60,15 +60,6 @@ export default function MonthlyPage() {
           <button className="btn-icon" onClick={nextMonth}><ChevronRight /></button>
         </div>
 
-        <div className="flex flex-wrap gap-2 mb-4 w-full justify-center">
-          {activeHabits.map(h => (
-            <div key={h.id} className="flex items-center gap-1 text-sm">
-              <span className="w-3 h-3 rounded-full" style={{ background: getHabitColor(h.id) }}></span>
-              <span className="text-secondary">{h.title}</span>
-            </div>
-          ))}
-        </div>
-
         <select 
           className="w-full mb-6 p-2 rounded glass" 
           style={{ background: 'rgba(0,0,0,0.3)', color: 'white', border: '1px solid var(--surface-border)' }}
