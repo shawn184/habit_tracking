@@ -73,12 +73,12 @@ export default function MonthlyPage() {
         </select>
 
         <div className="w-full">
-          <div className="grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '4px', textAlign: 'center', marginBottom: '8px' }}>
+          <div className="grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(7, minmax(0, 1fr))', gap: '4px', textAlign: 'center', marginBottom: '8px' }}>
             {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, i) => (
               <span key={i} className="text-secondary font-medium">{d}</span>
             ))}
           </div>
-          <div className="grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '4px' }}>
+          <div className="grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(7, minmax(0, 1fr))', gap: '4px' }}>
             {emptyDays.map(d => (
               <div key={`empty-${d}`} className="rounded" style={{aspectRatio: '1', background: 'transparent'}} />
             ))}
@@ -112,8 +112,19 @@ export default function MonthlyPage() {
                       {dayData.completed.slice(0, 3).map((habit, i) => (
                         <span 
                           key={i} 
-                          className="text-[10px] leading-none text-white/90 truncate w-full text-center rounded px-1 py-[2px]"
-                          style={{ background: getHabitColor(habit.id) }}
+                          className="w-full rounded"
+                          style={{ 
+                            background: getHabitColor(habit.id),
+                            fontSize: '10px',
+                            lineHeight: '1',
+                            color: 'rgba(255, 255, 255, 0.9)',
+                            textAlign: 'center',
+                            padding: '2px 4px',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            display: 'block'
+                          }}
                         >
                           {habit.title}
                         </span>

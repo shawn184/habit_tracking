@@ -46,7 +46,12 @@ export default function DailyPage() {
             const isCompleted = !!logForToday;
 
             return (
-              <div key={habit.id} className="card glass">
+              <div 
+                key={habit.id} 
+                className="card glass" 
+                style={{ cursor: 'pointer' }}
+                onClick={() => handleToggle(habit.id, habit.requiresDescription)}
+              >
                 <div className="card-content">
                   <span className="card-title">{habit.title}</span>
                   {logForToday?.description && (
@@ -57,7 +62,8 @@ export default function DailyPage() {
                   type="checkbox"
                   className="custom-checkbox"
                   checked={isCompleted}
-                  onChange={() => handleToggle(habit.id, habit.requiresDescription)}
+                  style={{ pointerEvents: 'none' }}
+                  readOnly
                 />
               </div>
             );

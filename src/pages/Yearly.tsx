@@ -27,25 +27,6 @@ export default function YearlyPage() {
       end = removedAt;
     }
 
-    let periodsActive = 1;
-    let periodName = 'Weeks';
-    if (habit.frequency === 'daily') {
-      periodsActive = Math.max(1, differenceInDays(end, start) + 1);
-      periodName = 'Days';
-    } else if (habit.frequency === 'weekly') {
-      periodsActive = Math.max(1, differenceInWeeks(end, start) + 1);
-      periodName = 'Weeks';
-    } else if (habit.frequency === 'monthly') {
-      // Month difference sometimes calculates fully passed months, so we add 1 to include the current month segment
-      periodsActive = Math.max(1, differenceInMonths(end, start) + 1);
-      periodName = 'Months';
-    } else if (habit.frequency === 'quarterly') {
-      periodsActive = Math.max(1, differenceInQuarters(end, start) + 1);
-      periodName = 'Quarters';
-    }
-
-    const expectedYearlyTotal = periodsActive * habit.target;
-
     // find total logs in current year
     const yearlyLogs = logs.filter(l => {
       if (l.habitId !== habit.id) return false;
@@ -53,14 +34,69 @@ export default function YearlyPage() {
       return logYear === currentYear;
     });
 
-    const percentage = Math.round((yearlyLogs.length / expectedYearlyTotal) * 100) || 0;
+    let periodsActive = 1;
+    let periodName = 'Weeks';
+    let expectedLogs = 0;
+    let fulfilledLogs = 0;
+    let percentage = 0;
+    let countLabel = 'Total Logs';
+
+    if (habit.frequency === 'daily') {
+      periodsActive = Math.max(1, differenceInDays(end, start) + 1);
+      periodName = 'Days';
+      expectedLogs = periodsActive * habit.target;
+      fulfilledLogs = yearlyLogs.length;
+      countLabel = 'Total Logs';
+      const percentageVal = expectedLogs > 0 ? (fulfilledLogs / expectedLogs) * 100 : 0;
+      percentage = Number(percentageVal.toFixed(2));
+    } else {
+      const periodCounts: Record<string, number> = {};
+      yearlyLogs.forEach(l => {
+        const date = parseISO(l.date);
+        let key = '';
+        if (habit.frequency === 'weekly') {
+          key = format(date, 'w'); // week
+        } else if (habit.frequency === 'monthly') {
+          key = format(date, 'M'); // month
+        } else if (habit.frequency === 'quarterly') {
+          key = format(date, 'Q'); // quarter
+        }
+        if (key) {
+          periodCounts[key] = (periodCounts[key] || 0) + 1;
+        }
+      });
+
+      fulfilledLogs = 0;
+      Object.values(periodCounts).forEach(count => {
+        if (count >= habit.target) {
+          fulfilledLogs++;
+        }
+      });
+
+      if (habit.frequency === 'weekly') {
+        periodsActive = Math.max(1, differenceInWeeks(end, start));
+        periodName = 'Weeks';
+      } else if (habit.frequency === 'monthly') {
+        periodsActive = Math.max(1, differenceInMonths(end, start));
+        periodName = 'Months';
+      } else if (habit.frequency === 'quarterly') {
+        periodsActive = Math.max(1, differenceInQuarters(end, start));
+        periodName = 'Quarters';
+      }
+
+      expectedLogs = periodsActive;
+      countLabel = 'Goals Met';
+      const percentageVal = expectedLogs > 0 ? (fulfilledLogs / expectedLogs) * 100 : 0;
+      percentage = Number(percentageVal.toFixed(2));
+    }
 
     return {
-      fulfilledLogs: yearlyLogs.length,
-      expectedLogs: expectedYearlyTotal,
+      fulfilledLogs,
+      expectedLogs,
       percentage: Math.min(percentage, 100),
       periodsActive,
-      periodName
+      periodName,
+      countLabel
     };
   };
 
@@ -105,7 +141,7 @@ export default function YearlyPage() {
                 </div>
 
                 <div className="flex justify-between w-full text-sm text-secondary">
-                  <span>{stats.fulfilledLogs} / {stats.expectedLogs} Total Logs</span>
+                  <span>{stats.fulfilledLogs} / {stats.expectedLogs} {stats.countLabel}</span>
                   <span>{stats.periodsActive} Active {stats.periodName}</span>
                 </div>
               </div>
