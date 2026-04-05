@@ -1,6 +1,6 @@
 import React from 'react';
 import { useHabits } from '../store/HabitContext';
-import { format, differenceInDays, differenceInWeeks, differenceInMonths, differenceInQuarters, parseISO, startOfYear } from 'date-fns';
+import { format, differenceInDays, differenceInWeeks, differenceInMonths, differenceInQuarters, parseISO, startOfYear, getISOWeek } from 'date-fns';
 import type { Habit } from '../types';
 
 export default function YearlyPage() {
@@ -61,7 +61,7 @@ export default function YearlyPage() {
         const date = parseISO(l.date);
         let key = '';
         if (habit.frequency === 'weekly') {
-          key = format(date, 'w'); // week
+          key = String(getISOWeek(date)); // ISO week (Mon-Sun)
         } else if (habit.frequency === 'monthly') {
           key = format(date, 'M'); // month
         } else if (habit.frequency === 'quarterly') {
@@ -83,7 +83,7 @@ export default function YearlyPage() {
         periodsActive = Math.max(1, differenceInWeeks(end, start));
         periodName = 'Weeks';
         // Current week progress
-        const currentWeek = format(today, 'w');
+        const currentWeek = String(getISOWeek(today));
         currentPeriodProgress = periodCounts[currentWeek] || 0;
         currentPeriodTarget = habit.target;
         currentPeriodLabel = `This Week`;
