@@ -13,12 +13,12 @@ export default function YearlyPage() {
     
     // Bounds check for the year
     if (createdAt.getFullYear() > currentYear) {
-      return { fulfilledLogs: 0, expectedLogs: 0, percentage: 0, periodsActive: 0, periodName: 'Periods' };
+      return { fulfilledLogs: 0, expectedLogs: 0, percentage: 0, periodsActive: 0, periodName: 'Periods', totalLogs: 0, currentPeriodProgress: 0, currentPeriodTarget: 0, currentPeriodLabel: '' };
     }
     
     let removedAt = habit.removedAt ? parseISO(habit.removedAt) : null;
     if (removedAt && removedAt.getFullYear() < currentYear) {
-      return { fulfilledLogs: 0, expectedLogs: 0, percentage: 0, periodsActive: 0, periodName: 'Periods' };
+      return { fulfilledLogs: 0, expectedLogs: 0, percentage: 0, periodsActive: 0, periodName: 'Periods', totalLogs: 0, currentPeriodProgress: 0, currentPeriodTarget: 0, currentPeriodLabel: '' };
     }
 
     const start = createdAt.getFullYear() < currentYear ? startOfYear(today) : createdAt;
@@ -40,6 +40,12 @@ export default function YearlyPage() {
     let fulfilledLogs = 0;
     let percentage = 0;
     let countLabel = 'Total Logs';
+    let totalLogs = yearlyLogs.length;
+
+    // For monthly/quarterly: also compute per-period current progress
+    let currentPeriodProgress = 0;
+    let currentPeriodTarget = habit.target;
+    let currentPeriodLabel = '';
 
     if (habit.frequency === 'daily') {
       periodsActive = Math.max(1, differenceInDays(end, start) + 1);
@@ -76,12 +82,27 @@ export default function YearlyPage() {
       if (habit.frequency === 'weekly') {
         periodsActive = Math.max(1, differenceInWeeks(end, start));
         periodName = 'Weeks';
+        // Current week progress
+        const currentWeek = format(today, 'w');
+        currentPeriodProgress = periodCounts[currentWeek] || 0;
+        currentPeriodTarget = habit.target;
+        currentPeriodLabel = `This Week`;
       } else if (habit.frequency === 'monthly') {
         periodsActive = Math.max(1, differenceInMonths(end, start));
         periodName = 'Months';
+        // Current month progress
+        const currentMonth = format(today, 'M');
+        currentPeriodProgress = periodCounts[currentMonth] || 0;
+        currentPeriodTarget = habit.target;
+        currentPeriodLabel = `This Month`;
       } else if (habit.frequency === 'quarterly') {
         periodsActive = Math.max(1, differenceInQuarters(end, start));
         periodName = 'Quarters';
+        // Current quarter progress
+        const currentQuarter = format(today, 'Q');
+        currentPeriodProgress = periodCounts[currentQuarter] || 0;
+        currentPeriodTarget = habit.target;
+        currentPeriodLabel = `This Quarter`;
       }
 
       expectedLogs = periodsActive;
@@ -96,7 +117,11 @@ export default function YearlyPage() {
       percentage: Math.min(percentage, 100),
       periodsActive,
       periodName,
-      countLabel
+      countLabel,
+      totalLogs,
+      currentPeriodProgress,
+      currentPeriodTarget,
+      currentPeriodLabel
     };
   };
 
@@ -122,6 +147,11 @@ export default function YearlyPage() {
             const stats = calculateYearlyRate(habit);
             if (stats.expectedLogs === 0) return null; // Created in future or fully removed loop
 
+            const showCurrentProgress = (habit.frequency === 'monthly' || habit.frequency === 'quarterly' || habit.frequency === 'weekly') && stats.currentPeriodLabel;
+            const currentProgressPercent = stats.currentPeriodTarget > 0
+              ? Math.min((stats.currentPeriodProgress / stats.currentPeriodTarget) * 100, 100)
+              : 0;
+
             return (
               <div key={habit.id} className="card glass flex-col" style={{ alignItems: 'flex-start' }}>
                 <div className="flex justify-between w-full mb-3">
@@ -144,6 +174,30 @@ export default function YearlyPage() {
                   <span>{stats.fulfilledLogs} / {stats.expectedLogs} {stats.countLabel}</span>
                   <span>{stats.periodsActive} Active {stats.periodName}</span>
                 </div>
+
+                {/* Current period progress for non-daily habits */}
+                {showCurrentProgress && (
+                  <div className="yearly-current-progress">
+                    <div className="yearly-current-progress-header">
+                      <span className="yearly-current-progress-label">{stats.currentPeriodLabel}</span>
+                      <span className="yearly-current-progress-count">
+                        {stats.currentPeriodProgress} / {stats.currentPeriodTarget} logs
+                      </span>
+                    </div>
+                    <div className="yearly-current-progress-bar-bg">
+                      <div 
+                        className="yearly-current-progress-bar-fill"
+                        style={{ 
+                          width: `${currentProgressPercent}%`,
+                          background: currentProgressPercent >= 100 ? 'var(--success)' : 'var(--primary)',
+                        }}
+                      />
+                    </div>
+                    {currentProgressPercent >= 100 && (
+                      <span className="yearly-current-progress-done">✓ Goal met!</span>
+                    )}
+                  </div>
+                )}
               </div>
             );
           })}

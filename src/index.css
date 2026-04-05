@@ -291,3 +291,120 @@ input:focus {
 .mb-6 { margin-bottom: 1.5rem; }
 .w-full { width: 100%; }
 .text-center { text-align: center; }
+.p-6 { padding: 1.5rem; }
+
+/* Daily Date Navigation */
+.daily-date-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  gap: 0.5rem;
+}
+
+.daily-date-nav .btn-icon {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--surface-border);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.daily-date-nav .btn-icon:hover:not(:disabled) {
+  background: rgba(139, 92, 246, 0.2);
+  border-color: rgba(139, 92, 246, 0.4);
+  color: var(--text-primary);
+  transform: scale(1.08);
+}
+
+.daily-date-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.daily-today-hint {
+  font-size: 0.7rem;
+  color: var(--primary);
+  margin-top: 0.25rem;
+  opacity: 0.8;
+}
+
+/* Monthly Day Cell Hover */
+.monthly-day-cell {
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+}
+
+.monthly-day-cell:hover {
+  transform: scale(1.08);
+  border-color: rgba(139, 92, 246, 0.5) !important;
+  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.2);
+  z-index: 2;
+}
+
+/* Monthly Popup Item */
+.monthly-popup-item {
+  transition: background var(--transition-fast), transform var(--transition-fast);
+}
+
+.monthly-popup-item:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  transform: translateX(4px);
+}
+
+/* Yearly Current Progress */
+.yearly-current-progress {
+  width: 100%;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--surface-border);
+}
+
+.yearly-current-progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.yearly-current-progress-label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--primary);
+}
+
+.yearly-current-progress-count {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.yearly-current-progress-bar-bg {
+  width: 100%;
+  height: 8px;
+  border-radius: 100px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.yearly-current-progress-bar-fill {
+  height: 100%;
+  border-radius: 100px;
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.yearly-current-progress-done {
+  font-size: 0.75rem;
+  color: var(--success);
+  margin-top: 0.35rem;
+  display: inline-block;
+}
