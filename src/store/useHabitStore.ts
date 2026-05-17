@@ -65,6 +65,11 @@ export function useHabitsStore() {
     }
   };
 
+  const importData = (importedHabits: Habit[], importedLogs: HabitLog[]) => {
+    setHabits(importedHabits);
+    setLogs(importedLogs);
+  };
+
   return {
     habits,
     logs,
@@ -72,5 +77,6 @@ export function useHabitsStore() {
     updateHabit,
     removeHabit,
     toggleLog,
+    importData,
   };
 }

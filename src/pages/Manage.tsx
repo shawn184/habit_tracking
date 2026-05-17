@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import type { HabitFrequency, Habit } from '../types';
 import { useHabits } from '../store/HabitContext';
-import { Trash2, Edit2 } from 'lucide-react';
+import { Trash2, Edit2, Download, Upload } from 'lucide-react';
 
 export default function ManagePage() {
-  const { habits, addHabit, removeHabit, updateHabit } = useHabits();
+  const { habits, logs, addHabit, removeHabit, updateHabit, importData } = useHabits();
   const [title, setTitle] = useState('');
   const [target, setTarget] = useState(1);
   const [frequency, setFrequency] = useState<HabitFrequency>('daily');
@@ -53,7 +53,42 @@ export default function ManagePage() {
     setTitle('');
     setTarget(1);
     setFrequency('daily');
-    setRequiresDescription(false);
+  };
+
+  const handleExport = () => {
+    const data = { habits, logs };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `habit-tracker-backup-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const content = event.target?.result as string;
+        const data = JSON.parse(content);
+        if (data && Array.isArray(data.habits) && Array.isArray(data.logs)) {
+          importData(data.habits, data.logs);
+          alert('Data imported successfully!');
+        } else {
+          alert('Invalid backup file format.');
+        }
+      } catch (error) {
+        alert('Error parsing the backup file.');
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
   };
 
   return (
@@ -216,6 +251,22 @@ export default function ManagePage() {
           ))}
         </div>
       )}
+
+      <h2 className="mt-12 mb-4 text-gradient">Data Management</h2>
+      <div className="card glass flex flex-col gap-4">
+        <p className="text-secondary text-sm">
+          Export your data to a file to keep it safe, or import previously exported data.
+        </p>
+        <div className="flex gap-4">
+          <button className="btn btn-primary flex-1 flex items-center justify-center gap-2" onClick={handleExport}>
+            <Download size={20} /> Export Data
+          </button>
+          <label className="btn flex-1 flex items-center justify-center gap-2 cursor-pointer" style={{ background: 'transparent', border: '1px solid var(--surface-border)', color: 'white', margin: 0 }}>
+            <Upload size={20} /> Import Data
+            <input type="file" accept=".json" className="hidden" style={{ display: 'none' }} onChange={handleImport} />
+          </label>
+        </div>
+      </div>
     </div>
   );
 }

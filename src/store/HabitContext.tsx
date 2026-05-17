@@ -1,4 +1,5 @@
-import React, { createContext, useContext, type ReactNode } from 'react';
+import React, { createContext, useContext } from 'react';
+import type { ReactNode } from 'react';
 import { useHabitsStore } from './useHabitStore';
 import type { Habit, HabitLog } from '../types';
 
@@ -9,6 +10,7 @@ type HabitsContextType = {
   updateHabit: (id: string, partial: Partial<Habit>) => void;
   removeHabit: (id: string) => void;
   toggleLog: (habitId: string, date: string, description?: string) => void;
+  importData: (habits: Habit[], logs: HabitLog[]) => void;
 };
 
 const HabitsContext = createContext<HabitsContextType | undefined>(undefined);
