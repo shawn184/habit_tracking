@@ -8,9 +8,9 @@
   --text-primary: #f4f4f5;
   --text-secondary: #a1a1aa;
   
-  --primary: #8b5cf6;
-  --primary-hover: #7c3aed;
-  --primary-glow: rgba(139, 92, 246, 0.4);
+  --primary: #f97316;
+  --primary-hover: #ea580c;
+  --primary-glow: rgba(249, 115, 22, 0.4);
   
   --success: #10b981;
   --success-glow: rgba(16, 185, 129, 0.4);
@@ -212,7 +212,7 @@ input:focus {
 
 .nav-item.active {
   color: var(--primary);
-  background: rgba(139, 92, 246, 0.15);
+  background: rgba(249, 115, 22, 0.15);
 }
 
 .nav-item svg {
@@ -273,7 +273,7 @@ input:focus {
 
 /* Utilities */
 .text-gradient {
-  background: linear-gradient(to right, #8b5cf6, #3b82f6);
+  background: linear-gradient(to right, #f97316, #facc15);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -318,8 +318,8 @@ input:focus {
 }
 
 .daily-date-nav .btn-icon:hover:not(:disabled) {
-  background: rgba(139, 92, 246, 0.2);
-  border-color: rgba(139, 92, 246, 0.4);
+  background: rgba(249, 115, 22, 0.2);
+  border-color: rgba(249, 115, 22, 0.4);
   color: var(--text-primary);
   transform: scale(1.08);
 }
@@ -347,8 +347,8 @@ input:focus {
 
 .monthly-day-cell:hover {
   transform: scale(1.08);
-  border-color: rgba(139, 92, 246, 0.5) !important;
-  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.2);
+  border-color: rgba(249, 115, 22, 0.5) !important;
+  box-shadow: 0 4px 16px rgba(249, 115, 22, 0.2);
   z-index: 2;
 }
 

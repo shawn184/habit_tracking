@@ -136,7 +136,7 @@ export default function YearlyPage() {
         </div>
       ) : (
         <div className="flex flex-col gap-4">
-          <div className="card glass flex-col items-center justify-center p-8 mb-4 border-[rgba(139,92,246,0.5)]" style={{ background: 'rgba(139, 92, 246, 0.1)' }}>
+          <div className="card glass flex-col items-center justify-center p-8 mb-4 border-[rgba(249,115,22,0.5)]" style={{ background: 'rgba(249, 115, 22, 0.1)' }}>
             <h2 className="mb-2">Total Year Progress</h2>
             <p className="text-center text-sm text-secondary max-w-[280px]">
               Rate is calculated based on logs tracked vs target required since habit creation this year.

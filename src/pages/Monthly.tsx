@@ -110,7 +110,7 @@ export default function MonthlyPage() {
                   bg = `${habitColor}33`;
                 }
               } else {
-                if (status > 0) bg = `rgba(139, 92, 246, ${Math.min(0.2 + (status * 0.15), 1)})`;
+                if (status > 0) bg = `rgba(249, 115, 22, ${Math.min(0.2 + (status * 0.15), 1)})`;
               }
 
               return (

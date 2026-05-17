@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useHabits } from '../store/HabitContext';
 import type { Habit } from '../types';
-import { format, subDays, addDays, isToday, isFuture } from 'date-fns';
+import { format, subDays, addDays, isToday, isFuture, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths } from 'date-fns';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 export default function DailyPage() {
@@ -9,6 +9,13 @@ export default function DailyPage() {
   const [selectedHabitId, setSelectedHabitId] = useState<string | null>(null);
   const [description, setDescription] = useState('');
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [calendarMonth, setCalendarMonth] = useState(currentDate);
+
+  const openDatePicker = () => {
+    setCalendarMonth(currentDate);
+    setShowDatePicker(true);
+  };
 
   const dateStr = format(currentDate, 'yyyy-MM-dd');
   const isCurrentDay = isToday(currentDate);
@@ -101,16 +108,14 @@ export default function DailyPage() {
         <button className="btn-icon" onClick={goToPrevDay} aria-label="Previous day">
           <ChevronLeft />
         </button>
-        <div className="daily-date-center" onClick={goToToday} style={{ cursor: 'pointer' }}>
+        <div className="daily-date-center" onClick={openDatePicker} style={{ cursor: 'pointer' }}>
           <h1 className="text-gradient" style={{ fontSize: '1.75rem', marginBottom: '0.25rem' }}>
             {isCurrentDay ? 'Today' : format(currentDate, 'MMM d, yyyy')}
           </h1>
           <p className="text-secondary" style={{ margin: 0 }}>
             {format(currentDate, 'EEEE, MMMM do, yyyy')}
           </p>
-          {!isCurrentDay && (
-            <span className="daily-today-hint">Tap to return to today</span>
-          )}
+          <span className="daily-today-hint">Tap to select date</span>
         </div>
         <button 
           className="btn-icon" 
@@ -133,6 +138,80 @@ export default function DailyPage() {
           {renderSection('Weekly Habits', weeklyFreqHabits)}
           {renderSection('Monthly Habits', monthlyFreqHabits)}
           {renderSection('Quarterly Habits', quarterlyFreqHabits)}
+        </div>
+      )}
+
+      {showDatePicker && (
+        <div className="modal-overlay" onClick={() => setShowDatePicker(false)}>
+          <div className="modal glass p-6" onClick={e => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-4">
+              <button className="btn-icon" onClick={() => setCalendarMonth(subMonths(calendarMonth, 1))}>
+                <ChevronLeft />
+              </button>
+              <h2 className="text-lg m-0" style={{ marginBottom: 0 }}>{format(calendarMonth, 'MMMM yyyy')}</h2>
+              <button 
+                className="btn-icon" 
+                onClick={() => setCalendarMonth(addMonths(calendarMonth, 1))}
+                disabled={isSameMonth(calendarMonth, new Date()) || isFuture(addMonths(calendarMonth, 1))}
+                style={{ opacity: (isSameMonth(calendarMonth, new Date()) || isFuture(addMonths(calendarMonth, 1))) ? 0.3 : 1 }}
+              >
+                <ChevronRight />
+              </button>
+            </div>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, minmax(0, 1fr))', gap: '4px', textAlign: 'center', marginBottom: '8px' }}>
+              {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(day => (
+                <div key={day} className="text-secondary text-sm font-bold py-1">{day}</div>
+              ))}
+            </div>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, minmax(0, 1fr))', gap: '4px' }}>
+              {eachDayOfInterval({
+                start: startOfWeek(startOfMonth(calendarMonth)),
+                end: endOfWeek(endOfMonth(calendarMonth))
+              }).map(day => {
+                const isCurrentMonth = isSameMonth(day, calendarMonth);
+                const isSelected = isSameDay(day, currentDate);
+                const isTodayDate = isToday(day);
+                const isDisabled = isFuture(day) && !isTodayDate;
+                
+                return (
+                  <button
+                    key={day.toString()}
+                    onClick={() => {
+                      if (!isDisabled) {
+                        setCurrentDate(day);
+                        setShowDatePicker(false);
+                      }
+                    }}
+                    disabled={isDisabled}
+                    style={{ 
+                      aspectRatio: '1',
+                      borderRadius: '8px',
+                      border: isTodayDate && !isSelected ? '1px solid var(--primary)' : '1px solid transparent',
+                      background: isSelected ? 'var(--primary)' : 'rgba(255, 255, 255, 0.05)',
+                      color: isSelected ? 'white' : 'var(--text-primary)',
+                      opacity: !isCurrentMonth ? 0.4 : (isDisabled ? 0.2 : 1),
+                      cursor: isDisabled ? 'default' : 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '0.9rem',
+                      fontWeight: isSelected ? 'bold' : 'normal',
+                      boxShadow: isSelected ? '0 0 10px rgba(249,115,22,0.4)' : 'none'
+                    }}
+                  >
+                    {format(day, 'd')}
+                  </button>
+                )
+              })}
+            </div>
+            
+            <div className="mt-6 flex justify-between gap-2">
+              <button className="btn" onClick={() => { setCurrentDate(new Date()); setShowDatePicker(false); }}>Go to Today</button>
+              <button className="btn btn-primary" onClick={() => setShowDatePicker(false)}>Close</button>
+            </div>
+          </div>
         </div>
       )}
 
